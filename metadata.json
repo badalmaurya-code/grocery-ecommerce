@@ -1,0 +1,6 @@
+{
+  "name": "Maurya Grocery",
+  "description": "आपकी अपनी भरोसेमंद किराना एवं ताज़ी सब्ज़ी स्टोर - Fresh Vegetables, Fruits, Daily Kirana & Household Delivery",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
