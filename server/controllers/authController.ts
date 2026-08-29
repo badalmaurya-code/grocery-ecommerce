@@ -8,31 +8,36 @@ export const register = async (req: Request, res: Response) => {
   try {
     const { name, email, phone, password } = req.body;
 
-    if (!name || !email || !phone || !password) {
+    const cleanName = String(name || '').trim();
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    const cleanPhone = String(phone || '').trim();
+    const cleanPassword = String(password || '');
+
+    if (!cleanName || !cleanEmail || !cleanPhone || !cleanPassword) {
       return res.status(400).json({ success: false, message: 'Please provide all required fields (name, email, phone, password)' });
     }
 
-    if (password.length < 6) {
+    if (cleanPassword.length < 6) {
       return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
     }
 
-    const existingUser = await DataService.findUserByEmail(email);
+    const existingUser = await DataService.findUserByEmail(cleanEmail);
     if (existingUser) {
       return res.status(409).json({ success: false, message: 'An account with this email already exists' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(cleanPassword, 10);
     const user = await DataService.createUser({
-      name,
-      email: email.toLowerCase(),
-      phone,
+      name: cleanName,
+      email: cleanEmail,
+      phone: cleanPhone,
       password: hashedPassword,
       role: 'user',
       addresses: [],
       isActive: true
     });
 
-    const token = generateToken(user._id!, user.role);
+    const token = generateToken(String(user._id), user.role);
 
     const { password: _, ...userSafe } = user;
 
@@ -52,11 +57,14 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    const cleanPassword = String(password || '');
+
+    if (!cleanEmail || !cleanPassword) {
       return res.status(400).json({ success: false, message: 'Please enter both email and password' });
     }
 
-    const user = await DataService.findUserByEmail(email);
+    const user = await DataService.findUserByEmail(cleanEmail);
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
@@ -65,12 +73,12 @@ export const login = async (req: Request, res: Response) => {
       return res.status(403).json({ success: false, message: 'Account is deactivated. Contact store support.' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password || '');
+    const isMatch = await bcrypt.compare(cleanPassword, user.password || '');
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
-    const token = generateToken(user._id!, user.role);
+    const token = generateToken(String(user._id), user.role);
     const { password: _, ...userSafe } = user;
 
     res.json({

@@ -24,9 +24,12 @@ api.interceptors.response.use(
   response => response,
   error => {
     if (error.response && error.response.status === 401) {
-      if (localStorage.getItem('maurya_token')) {
-        localStorage.removeItem('maurya_token');
-        localStorage.removeItem('maurya_user');
+      const url = error.config?.url || '';
+      if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
+        if (localStorage.getItem('maurya_token')) {
+          localStorage.removeItem('maurya_token');
+          localStorage.removeItem('maurya_user');
+        }
       }
     }
     return Promise.reject(error);

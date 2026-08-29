@@ -26,14 +26,15 @@ export interface IUserDoc extends Document {
 }
 
 const AddressSchema = new Schema({
-  fullName: { type: String, required: true },
-  phone: { type: String, required: true },
-  addressLine: { type: String, required: true },
-  area: { type: String, required: true },
-  city: { type: String, required: true, default: 'Gorakhpur' },
-  state: { type: String, required: true, default: 'Uttar Pradesh' },
-  pincode: { type: String, required: true, default: '273001' },
-  landmark: { type: String, default: '' },
+  _id: { type: String, default: () => `addr_${Date.now()}_${Math.random().toString(36).substr(2, 5)}` },
+  fullName: { type: String, required: true, trim: true },
+  phone: { type: String, required: true, trim: true },
+  addressLine: { type: String, required: true, trim: true },
+  area: { type: String, required: true, trim: true },
+  city: { type: String, required: true, default: 'Gorakhpur', trim: true },
+  state: { type: String, required: true, default: 'Uttar Pradesh', trim: true },
+  pincode: { type: String, required: true, default: '273001', trim: true },
+  landmark: { type: String, default: '', trim: true },
   isDefault: { type: Boolean, default: false }
 });
 
@@ -52,6 +53,10 @@ const UserSchema = new Schema<IUserDoc>(
 
 UserSchema.pre('save', async function () {
   if (!this.isModified('password') || !this.password) {
+    return;
+  }
+  // Prevent double-hashing if password is already a valid bcrypt hash
+  if (/^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(this.password)) {
     return;
   }
   const salt = await bcrypt.genSalt(10);

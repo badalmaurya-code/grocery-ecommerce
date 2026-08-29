@@ -175,36 +175,62 @@ export const DataService = {
 
   // USERS
   async findUserByEmail(email: string): Promise<IUser | null> {
+    if (!email) return null;
+    const normalizedEmail = String(email).trim().toLowerCase();
     if (this.isMongooseConnected()) {
       try {
-        const u = await (UserModel as any).findOne({ email: email.toLowerCase() });
-        return u ? (u.toObject() as IUser) : null;
+        const u = await (UserModel as any).findOne({ email: normalizedEmail });
+        if (u) {
+          const obj = u.toObject() as IUser;
+          obj._id = String(obj._id);
+          return obj;
+        }
+        return null;
       } catch (err) {
         console.error('Mongo findUserByEmail error:', err);
       }
     }
     await memoryStore.init();
-    return memoryStore.users.find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
+    return memoryStore.users.find(u => String(u.email).trim().toLowerCase() === normalizedEmail) || null;
   },
 
   async findUserById(id: string): Promise<IUser | null> {
+    if (!id) return null;
+    const str = String(id).trim();
     if (this.isMongooseConnected()) {
       try {
-        const u = await (UserModel as any).findById(id);
-        return u ? (u.toObject() as IUser) : null;
+        let u = null;
+        if (mongoose.Types.ObjectId.isValid(str)) {
+          u = await (UserModel as any).findById(str);
+        }
+        if (!u) {
+          u = await (UserModel as any).findOne({ _id: str });
+        }
+        if (u) {
+          const obj = u.toObject() as IUser;
+          obj._id = String(obj._id);
+          return obj;
+        }
+        return null;
       } catch (err) {
         console.error('Mongo findUserById error:', err);
       }
     }
     await memoryStore.init();
-    return memoryStore.users.find(u => u._id === id) || null;
+    return memoryStore.users.find(u => String(u._id) === str) || null;
   },
 
   async createUser(userData: Partial<IUser>): Promise<IUser> {
+    const normalizedEmail = String(userData.email || '').trim().toLowerCase();
     if (this.isMongooseConnected()) {
       try {
-        const u = await (UserModel as any).create(userData);
-        return u.toObject() as IUser;
+        const u = await (UserModel as any).create({
+          ...userData,
+          email: normalizedEmail
+        });
+        const obj = u.toObject() as IUser;
+        obj._id = String(obj._id);
+        return obj;
       } catch (err) {
         console.error('Mongo createUser error:', err);
       }
@@ -213,7 +239,7 @@ export const DataService = {
     const newUser: IUser = {
       _id: `usr_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
       name: userData.name || '',
-      email: (userData.email || '').toLowerCase(),
+      email: normalizedEmail,
       phone: userData.phone || '',
       password: userData.password,
       role: userData.role || 'user',
@@ -226,16 +252,28 @@ export const DataService = {
   },
 
   async updateUser(id: string, updates: Partial<IUser>): Promise<IUser | null> {
+    const str = String(id).trim();
     if (this.isMongooseConnected()) {
       try {
-        const u = await (UserModel as any).findByIdAndUpdate(id, updates, { new: true });
-        return u ? (u.toObject() as IUser) : null;
+        let u = null;
+        if (mongoose.Types.ObjectId.isValid(str)) {
+          u = await (UserModel as any).findByIdAndUpdate(str, updates, { new: true });
+        }
+        if (!u) {
+          u = await (UserModel as any).findOneAndUpdate({ _id: str }, updates, { new: true });
+        }
+        if (u) {
+          const obj = u.toObject() as IUser;
+          obj._id = String(obj._id);
+          return obj;
+        }
+        return null;
       } catch (err) {
         console.error('Mongo updateUser error:', err);
       }
     }
     await memoryStore.init();
-    const index = memoryStore.users.findIndex(u => u._id === id);
+    const index = memoryStore.users.findIndex(u => String(u._id) === str);
     if (index === -1) return null;
     memoryStore.users[index] = { ...memoryStore.users[index], ...updates, updatedAt: new Date() };
     return memoryStore.users[index];
@@ -245,13 +283,17 @@ export const DataService = {
     if (this.isMongooseConnected()) {
       try {
         const list = await (UserModel as any).find().select('-password').sort({ createdAt: -1 });
-        return list.map((u: any) => u.toObject() as IUser);
+        return list.map((u: any) => {
+          const obj = u.toObject() as IUser;
+          obj._id = String(obj._id);
+          return obj;
+        });
       } catch (err) {
         console.error('Mongo getAllUsers error:', err);
       }
     }
     await memoryStore.init();
-    return memoryStore.users.map(({ password, ...rest }) => rest as IUser);
+    return memoryStore.users.map(({ password, ...rest }) => ({ ...rest, _id: String(rest._id) } as IUser));
   },
 
   // CATEGORIES
@@ -561,7 +603,9 @@ export const DataService = {
     if (this.isMongooseConnected()) {
       try {
         const ord = await (OrderModel as any).create(orderData);
-        return ord.toObject() as IOrder;
+        const obj = ord.toObject() as IOrder;
+        obj._id = String(obj._id);
+        return obj;
       } catch (err) {
         console.error('Mongo createOrder error:', err);
       }
@@ -606,53 +650,87 @@ export const DataService = {
     return newOrd;
   },
 
-  async getOrdersByUser(userIdOrEmail: string): Promise<IOrder[]> {
+  async getOrdersByUser(userIdOrEmail: any): Promise<IOrder[]> {
+    if (!userIdOrEmail) return [];
+    const val = String(userIdOrEmail).trim();
+    const isEmail = val.includes('@');
+    const valLower = val.toLowerCase();
+
     if (this.isMongooseConnected()) {
       try {
-        const list = await (OrderModel as any).find({
-          $or: [{ 'user.userId': userIdOrEmail }, { 'user.email': userIdOrEmail.toLowerCase() }]
-        }).sort({ createdAt: -1 });
-        return list.map((o: any) => o.toObject() as IOrder);
+        const filter = isEmail
+          ? { 'user.email': valLower }
+          : {
+              $or: [
+                { 'user.userId': val },
+                { 'user.userId': valLower },
+                { 'user.email': valLower }
+              ]
+            };
+        const list = await (OrderModel as any).find(filter).sort({ createdAt: -1 });
+        return list.map((o: any) => {
+          const obj = o.toObject() as IOrder;
+          obj._id = String(obj._id);
+          return obj;
+        });
       } catch (err) {
         console.error('Mongo getOrdersByUser error:', err);
       }
     }
     await memoryStore.init();
-    return memoryStore.orders.filter(
-      o => o.user.userId === userIdOrEmail || o.user.email.toLowerCase() === userIdOrEmail.toLowerCase()
-    );
+    return memoryStore.orders.filter(o => {
+      const uId = String(o.user.userId || '');
+      const uEmail = String(o.user.email || '').toLowerCase();
+      if (isEmail) {
+        return uEmail === valLower;
+      }
+      return uId === val || uId.toLowerCase() === valLower || uEmail === valLower;
+    });
   },
 
   async getOrderById(idOrNumber: string): Promise<IOrder | null> {
+    if (!idOrNumber) return null;
+    const str = String(idOrNumber).trim();
     if (this.isMongooseConnected()) {
       try {
         let ord = null;
-        if (mongoose.Types.ObjectId.isValid(idOrNumber)) {
-          ord = await (OrderModel as any).findById(idOrNumber);
+        if (mongoose.Types.ObjectId.isValid(str)) {
+          ord = await (OrderModel as any).findById(str);
         }
         if (!ord) {
-          ord = await (OrderModel as any).findOne({ orderNumber: idOrNumber });
+          ord = await (OrderModel as any).findOne({
+            $or: [{ orderNumber: str }, { _id: str }]
+          });
         }
-        return ord ? (ord.toObject() as IOrder) : null;
+        if (ord) {
+          const obj = ord.toObject() as IOrder;
+          obj._id = String(obj._id);
+          return obj;
+        }
+        return null;
       } catch (err) {
         console.error('Mongo getOrderById error:', err);
       }
     }
     await memoryStore.init();
-    return memoryStore.orders.find(o => o._id === idOrNumber || o.orderNumber === idOrNumber) || null;
+    return memoryStore.orders.find(o => String(o._id) === str || o.orderNumber === str) || null;
   },
 
   async getAllOrders(): Promise<IOrder[]> {
     if (this.isMongooseConnected()) {
       try {
         const list = await (OrderModel as any).find().sort({ createdAt: -1 });
-        return list.map((o: any) => o.toObject() as IOrder);
+        return list.map((o: any) => {
+          const obj = o.toObject() as IOrder;
+          obj._id = String(obj._id);
+          return obj;
+        });
       } catch (err) {
         console.error('Mongo getAllOrders error:', err);
       }
     }
     await memoryStore.init();
-    return memoryStore.orders;
+    return memoryStore.orders.map(o => ({ ...o, _id: String(o._id) }));
   },
 
   async updateOrderStatus(
@@ -661,9 +739,13 @@ export const DataService = {
     paymentStatus?: IOrder['paymentStatus'],
     note?: string
   ): Promise<IOrder | null> {
+    if (!idOrNumber) return null;
+    const str = String(idOrNumber).trim();
     if (this.isMongooseConnected()) {
       try {
-        const query = mongoose.Types.ObjectId.isValid(idOrNumber) ? { _id: idOrNumber } : { orderNumber: idOrNumber };
+        const query = mongoose.Types.ObjectId.isValid(str)
+          ? { _id: str }
+          : { $or: [{ orderNumber: str }, { _id: str }] };
         const ord = await (OrderModel as any).findOne(query);
         if (ord) {
           ord.orderStatus = orderStatus;
@@ -674,14 +756,16 @@ export const DataService = {
             note: note || `Order updated to ${orderStatus}`
           });
           await ord.save();
-          return ord.toObject() as IOrder;
+          const obj = ord.toObject() as IOrder;
+          obj._id = String(obj._id);
+          return obj;
         }
       } catch (err) {
         console.error('Mongo updateOrderStatus error:', err);
       }
     }
     await memoryStore.init();
-    const ord = memoryStore.orders.find(o => o._id === idOrNumber || o.orderNumber === idOrNumber);
+    const ord = memoryStore.orders.find(o => String(o._id) === str || o.orderNumber === str);
     if (!ord) return null;
     ord.orderStatus = orderStatus;
     if (paymentStatus) ord.paymentStatus = paymentStatus;
