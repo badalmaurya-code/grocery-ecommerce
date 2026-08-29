@@ -8,16 +8,21 @@ import {
   Truck,
   ShieldCheck,
   Sparkles,
-  ArrowLeft
+  ArrowLeft,
+  UserCheck
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useSettings } from '../context/SettingsContext';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 interface CartPageProps {
   navigate: (view: string, params?: any) => void;
 }
 
 export const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
+  const { user } = useAuth();
+  const { showToast } = useToast();
   const {
     cart,
     updateQuantity,
@@ -31,6 +36,15 @@ export const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
   } = useCart();
 
   const { settings } = useSettings();
+
+  const handleProceedToCheckout = () => {
+    if (!user) {
+      showToast('Please login to proceed with checkout (ऑर्डर करने के लिए कृपया पहले लॉगिन करें)', 'info');
+      navigate('login', { redirect: 'checkout' });
+      return;
+    }
+    navigate('checkout');
+  };
 
   if (cart.length === 0) {
     return (
@@ -221,12 +235,18 @@ export const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
 
           <button
             id="proceed-checkout-btn"
-            onClick={() => navigate('checkout')}
+            onClick={handleProceedToCheckout}
             className="w-full py-4 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
           >
             <span>Proceed to Checkout (आगे बढ़ें)</span>
             <ArrowRight className="w-4 h-4" />
           </button>
+
+          {!user && (
+            <p className="text-[11px] text-center text-amber-700 font-medium bg-amber-50 py-1.5 px-2 rounded-xl border border-amber-200/70">
+              🔒 You will be asked to login to place your order.
+            </p>
+          )}
 
           <div className="p-3 bg-stone-50 rounded-2xl border border-stone-200/80 text-[11px] text-stone-500 space-y-1.5">
             <div className="flex items-center gap-2 text-stone-700 font-semibold">

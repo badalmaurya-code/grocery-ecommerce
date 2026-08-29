@@ -1,6 +1,7 @@
 import React from 'react';
 import { MapPin, Phone, MessageCircle, Clock, ShieldCheck, Truck, RefreshCw, Award } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
+import { MauryaLogo } from './MauryaLogo';
 
 interface FooterProps {
   navigate: (view: string, params?: any) => void;
@@ -69,18 +70,8 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
           {/* Col 1 & 2: Store Identity */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-lg">
-                M
-              </div>
-              <div>
-                <span className="text-xl font-bold font-serif text-white tracking-tight">
-                  {settings.storeName}
-                </span>
-                <span className="text-xs text-emerald-400 ml-2 font-hindi font-semibold">
-                  ({settings.storeHindiName})
-                </span>
-              </div>
+            <div className="bg-white p-3 rounded-2xl inline-block shadow-md">
+              <MauryaLogo size="sm" variant="horizontal" showTagline={false} />
             </div>
 
             <p className="text-sm text-stone-400 font-hindi max-w-sm leading-relaxed">
@@ -196,11 +187,6 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => {
               <li>
                 <button onClick={() => navigate('refund-policy')} className="hover:text-emerald-400 transition-colors">
                   Refund & Cancellation Policy
-                </button>
-              </li>
-              <li>
-                <button onClick={() => navigate('admin-dashboard')} className="hover:text-amber-400 transition-colors text-stone-400">
-                  Admin Portal (स्टोर प्रबंधन)
                 </button>
               </li>
             </ul>

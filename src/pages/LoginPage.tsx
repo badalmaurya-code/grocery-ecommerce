@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { Lock, Mail, Store, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Lock, Mail, ArrowRight, ShoppingBag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
+import { MauryaLogo } from '../components/MauryaLogo';
 
 interface LoginPageProps {
   navigate: (view: string, params?: any) => void;
+  redirect?: string;
 }
 
-export const LoginPage: React.FC<LoginPageProps> = ({ navigate }) => {
+export const LoginPage: React.FC<LoginPageProps> = ({ navigate, redirect }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,29 +22,32 @@ export const LoginPage: React.FC<LoginPageProps> = ({ navigate }) => {
     const success = await login(email, password);
     setIsSubmitting(false);
     if (success) {
-      navigate('home');
+      navigate(redirect || 'home');
     }
-  };
-
-  const handleFillDemoAdmin = () => {
-    setEmail('admin@mauryagrocery.com');
-    setPassword('admin123');
   };
 
   return (
     <div className="max-w-md mx-auto px-4 py-12 space-y-6">
       {/* Brand Header */}
-      <div className="text-center space-y-2">
-        <div className="w-12 h-12 bg-emerald-700 text-white rounded-2xl flex items-center justify-center mx-auto shadow-md">
-          <Store className="w-7 h-7" />
-        </div>
-        <h1 className="text-2xl font-extrabold text-stone-900 font-serif">
-          Login to {settings.storeName}
-        </h1>
+      <div className="text-center space-y-3">
+        <MauryaLogo variant="full" size="md" />
         <p className="text-xs text-stone-500 font-hindi">
           अपने अकाउंट में लॉगिन करें एवं ऑर्डर ट्रैक करें
         </p>
       </div>
+
+      {/* Redirect Prompt Banner */}
+      {redirect === 'checkout' && (
+        <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200/80 flex items-center gap-3 text-emerald-950 text-xs shadow-2xs">
+          <div className="w-8 h-8 rounded-xl bg-emerald-700 text-white flex items-center justify-center shrink-0">
+            <ShoppingBag className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="font-bold">Login required for Checkout</p>
+            <p className="text-[11px] text-emerald-800 font-hindi">ऑर्डर पूरा करने के लिए कृपया पहले लॉगिन करें।</p>
+          </div>
+        </div>
+      )}
 
       {/* Login Card */}
       <div className="bg-white rounded-3xl border border-stone-200 p-6 sm:p-8 shadow-sm space-y-5">
@@ -90,30 +95,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ navigate }) => {
           </button>
         </form>
 
-        {/* Demo Admin Quick Access */}
-        <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200/80 text-xs text-amber-900 space-y-2">
-          <div className="flex items-center gap-1.5 font-bold">
-            <ShieldCheck className="w-4 h-4 text-amber-700" />
-            <span>Store Admin Demo Credentials:</span>
-          </div>
-          <p className="text-[11px] text-amber-800">
-            Email: <code className="bg-amber-100 px-1 py-0.5 rounded font-mono">admin@mauryagrocery.com</code><br />
-            Password: <code className="bg-amber-100 px-1 py-0.5 rounded font-mono">admin123</code>
-          </p>
-          <button
-            type="button"
-            onClick={handleFillDemoAdmin}
-            className="text-[11px] font-bold text-amber-900 hover:underline bg-amber-200/60 px-2 py-1 rounded-lg"
-          >
-            Auto-fill Admin Details
-          </button>
-        </div>
-
         <div className="text-center pt-2 border-t border-stone-100 text-xs text-stone-600">
           <span>Don't have an account? </span>
           <button
-            onClick={() => navigate('register')}
-            className="font-bold text-emerald-700 hover:underline ml-1"
+            onClick={() => navigate('register', { redirect })}
+            className="font-bold text-emerald-700 hover:underline ml-1 cursor-pointer"
           >
             Register Here (नया खाता बनाएं)
           </button>

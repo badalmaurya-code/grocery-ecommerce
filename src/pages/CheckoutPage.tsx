@@ -60,7 +60,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
       return;
     }
 
-    if (user && user.addresses && user.addresses.length > 0) {
+    if (!user) {
+      showToast('Please login to continue with checkout (कृपया ऑर्डर के लिए लॉगिन करें)', 'info');
+      navigate('login', { redirect: 'checkout' });
+      return;
+    }
+
+    if (user.addresses && user.addresses.length > 0) {
       const defaultAddr = user.addresses.find(a => a.isDefault) || user.addresses[0];
       setSelectedAddressId(defaultAddr._id || '');
     } else {

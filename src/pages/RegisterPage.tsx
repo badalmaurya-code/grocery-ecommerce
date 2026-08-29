@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { Lock, Mail, User, Phone, Store, ArrowRight } from 'lucide-react';
+import { Lock, Mail, User, Phone, ArrowRight, ShoppingBag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
+import { MauryaLogo } from '../components/MauryaLogo';
 
 interface RegisterPageProps {
   navigate: (view: string, params?: any) => void;
+  redirect?: string;
 }
 
-export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate }) => {
+export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate, redirect }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -23,24 +25,32 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate }) => {
     const success = await register(name, email, phone, password);
     setIsSubmitting(false);
     if (success) {
-      navigate('home');
+      navigate(redirect || 'home');
     }
   };
 
   return (
     <div className="max-w-md mx-auto px-4 py-12 space-y-6">
       {/* Brand Header */}
-      <div className="text-center space-y-2">
-        <div className="w-12 h-12 bg-emerald-700 text-white rounded-2xl flex items-center justify-center mx-auto shadow-md">
-          <Store className="w-7 h-7" />
-        </div>
-        <h1 className="text-2xl font-extrabold text-stone-900 font-serif">
-          Create Account ({settings.storeName})
-        </h1>
+      <div className="text-center space-y-3">
+        <MauryaLogo variant="full" size="md" />
         <p className="text-xs text-stone-500 font-hindi">
           ताज़ी सब्ज़ियाँ एवं शुद्ध किराना आसानी से मंगाएँ
         </p>
       </div>
+
+      {/* Redirect Prompt Banner */}
+      {redirect === 'checkout' && (
+        <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200/80 flex items-center gap-3 text-emerald-950 text-xs shadow-2xs">
+          <div className="w-8 h-8 rounded-xl bg-emerald-700 text-white flex items-center justify-center shrink-0">
+            <ShoppingBag className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="font-bold">Account required for Checkout</p>
+            <p className="text-[11px] text-emerald-800 font-hindi">ऑर्डर पूरा करने एवं डिलीवरी ट्रैक करने के लिए खाता बनाएं।</p>
+          </div>
+        </div>
+      )}
 
       {/* Register Form */}
       <div className="bg-white rounded-3xl border border-stone-200 p-6 sm:p-8 shadow-sm space-y-5">
@@ -124,8 +134,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ navigate }) => {
         <div className="text-center pt-2 border-t border-stone-100 text-xs text-stone-600">
           <span>Already have an account? </span>
           <button
-            onClick={() => navigate('login')}
-            className="font-bold text-emerald-700 hover:underline ml-1"
+            onClick={() => navigate('login', { redirect })}
+            className="font-bold text-emerald-700 hover:underline ml-1 cursor-pointer"
           >
             Login Here (लॉगिन करें)
           </button>

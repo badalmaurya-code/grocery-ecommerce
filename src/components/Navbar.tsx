@@ -23,6 +23,7 @@ import { useCart } from '../context/CartContext';
 import { useSettings } from '../context/SettingsContext';
 import { productAPI } from '../services/api';
 import { IProduct } from '../types';
+import { MauryaLogo } from './MauryaLogo';
 
 interface NavbarProps {
   currentView: string;
@@ -220,24 +221,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, navigate }) => {
             <div
               id="brand-logo"
               onClick={() => navigate('home')}
-              className="flex items-center gap-2 sm:gap-3 cursor-pointer group min-w-0 shrink"
+              className="cursor-pointer group min-w-0 shrink"
             >
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-800 to-emerald-600 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200 shrink-0">
-                <Store className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-100" />
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-baseline gap-1 sm:gap-1.5 flex-wrap">
-                  <span className="font-serif text-sm sm:text-xl md:text-2xl font-bold tracking-tight text-emerald-950 truncate">
-                    {settings.storeName}
-                  </span>
-                  <span className="text-[10px] sm:text-xs md:text-sm font-semibold text-emerald-700 font-hindi truncate hidden xs:inline">
-                    ({settings.storeHindiName})
-                  </span>
-                </div>
-                <p className="text-[10px] sm:text-xs text-stone-500 font-hindi hidden md:block line-clamp-1">
-                  {settings.tagline}
-                </p>
-              </div>
+              <MauryaLogo size="md" variant="horizontal" />
             </div>
 
             {/* Desktop Search Bar */}
@@ -491,25 +477,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, navigate }) => {
             className="relative w-[85%] max-w-sm bg-white h-full shadow-2xl flex flex-col justify-between overflow-hidden z-50 animate-in slide-in-from-left duration-300"
           >
             {/* Top Drawer Header */}
-            <div className="p-4 bg-emerald-800 text-white flex items-center justify-between border-b border-emerald-900">
+            <div className="p-3.5 bg-emerald-900 text-white flex items-center justify-between border-b border-emerald-950">
               <div
                 onClick={() => {
                   setMobileMenuOpen(false);
                   navigate('home');
                 }}
-                className="flex items-center gap-2.5 cursor-pointer min-w-0"
+                className="flex items-center gap-2 cursor-pointer min-w-0 bg-white px-2.5 py-1.5 rounded-2xl shadow-xs"
               >
-                <div className="w-9 h-9 rounded-xl bg-white/10 text-white flex items-center justify-center border border-white/20 shrink-0">
-                  <Store className="w-5 h-5 text-emerald-200" />
-                </div>
-                <div className="min-w-0">
-                  <div className="font-serif text-base font-bold tracking-tight text-white truncate">
-                    {settings.storeName}
-                  </div>
-                  <div className="text-[11px] text-emerald-200 font-hindi truncate">
-                    {settings.storeHindiName}
-                  </div>
-                </div>
+                <MauryaLogo size="xs" variant="horizontal" showTagline={false} />
               </div>
 
               {/* Close Button */}

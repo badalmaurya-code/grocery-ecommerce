@@ -1,6 +1,7 @@
 import React from 'react';
 import { Store, Award, Heart, Truck, ShieldCheck, MapPin, Phone, MessageCircle } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
+import { MauryaLogo } from '../components/MauryaLogo';
 
 interface AboutUsPageProps {
   navigate: (view: string, params?: any) => void;
@@ -12,19 +13,10 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({ navigate }) => {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       {/* Hero */}
-      <div className="text-center space-y-4 max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider">
-          <Store className="w-3.5 h-3.5" />
-          <span>Our Story & Mission</span>
+      <div className="text-center space-y-6 max-w-3xl mx-auto">
+        <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm inline-block">
+          <MauryaLogo variant="full" size="lg" />
         </div>
-
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-stone-900 font-serif">
-          About {settings.storeName} ({settings.storeHindiName})
-        </h1>
-
-        <p className="text-base sm:text-lg text-emerald-800 font-hindi font-medium">
-          "{settings.tagline}"
-        </p>
 
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-hindi">
           मौर्य ग्रॉसरी महावीर छपरा, गोरखपुर का एक प्रतिष्ठित एवं विश्वसनीय किराना एवं सब्ज़ी स्टोर है। हमारा उद्देश्य हर परिवार तक ताज़ी, स्वच्छ सब्जियाँ, शुद्ध दालें, उच्च गुणवत्ता का आटा, चावल एवं रोज़मर्रा का घरेलू सामान सबसे उचित मूल्य और मुफ्त होम डिलीवरी के साथ पहुँचाना है।

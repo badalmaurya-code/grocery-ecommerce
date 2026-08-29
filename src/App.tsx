@@ -23,6 +23,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { AboutUsPage } from './pages/AboutUsPage';
 import { ContactUsPage } from './pages/ContactUsPage';
 import { PolicyPages } from './pages/PolicyPages';
+import { AccessDeniedPage } from './pages/AccessDeniedPage';
 
 // Admin Pages
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
@@ -72,9 +73,9 @@ function AppContent() {
       case 'profile':
         return <ProfilePage navigate={navigate} />;
       case 'login':
-        return <LoginPage navigate={navigate} />;
+        return <LoginPage navigate={navigate} redirect={viewParams.redirect} />;
       case 'register':
-        return <RegisterPage navigate={navigate} />;
+        return <RegisterPage navigate={navigate} redirect={viewParams.redirect} />;
       case 'about':
         return <AboutUsPage navigate={navigate} />;
       case 'contact':
@@ -86,17 +87,17 @@ function AppContent() {
       case 'refund-policy':
         return <PolicyPages type="refund" navigate={navigate} />;
 
-      // Admin Routes
+      // Protected Admin Routes (Only accessible by isAdmin)
       case 'admin-dashboard':
-        return <AdminDashboardPage navigate={navigate} />;
+        return isAdmin ? <AdminDashboardPage navigate={navigate} /> : <AccessDeniedPage navigate={navigate} />;
       case 'admin-products':
-        return <AdminProductsPage navigate={navigate} openAddModal={viewParams.action === 'add'} />;
+        return isAdmin ? <AdminProductsPage navigate={navigate} openAddModal={viewParams.action === 'add'} /> : <AccessDeniedPage navigate={navigate} />;
       case 'admin-categories':
-        return <AdminCategoriesPage navigate={navigate} />;
+        return isAdmin ? <AdminCategoriesPage navigate={navigate} /> : <AccessDeniedPage navigate={navigate} />;
       case 'admin-orders':
-        return <AdminOrdersPage navigate={navigate} />;
+        return isAdmin ? <AdminOrdersPage navigate={navigate} /> : <AccessDeniedPage navigate={navigate} />;
       case 'admin-settings':
-        return <AdminSettingsPage navigate={navigate} />;
+        return isAdmin ? <AdminSettingsPage navigate={navigate} /> : <AccessDeniedPage navigate={navigate} />;
 
       default:
         return <HomePage navigate={navigate} />;

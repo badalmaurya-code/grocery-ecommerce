@@ -34,15 +34,27 @@ export const ShopPage: React.FC<ShopPageProps> = ({ navigate, initialCategory, i
   }, []);
 
   // Fetch Products whenever filters change
-  const fetchProducts = async () => {
+  const fetchProductsWith = async (overrides?: {
+    category?: string;
+    search?: string;
+    sort?: string;
+    min?: string;
+    max?: string;
+  }) => {
     setLoading(true);
     try {
+      const cat = overrides && overrides.category !== undefined ? overrides.category : selectedCategory;
+      const search = overrides && overrides.search !== undefined ? overrides.search : searchQuery;
+      const sort = overrides && overrides.sort !== undefined ? overrides.sort : sortOption;
+      const min = overrides && overrides.min !== undefined ? overrides.min : minPrice;
+      const max = overrides && overrides.max !== undefined ? overrides.max : maxPrice;
+
       const res = await productAPI.getProducts({
-        category: selectedCategory === 'all' ? undefined : selectedCategory,
-        search: searchQuery || undefined,
-        sort: sortOption !== 'default' ? sortOption : undefined,
-        minPrice: minPrice ? Number(minPrice) : undefined,
-        maxPrice: maxPrice ? Number(maxPrice) : undefined,
+        category: cat === 'all' ? undefined : cat,
+        search: search.trim() || undefined,
+        sort: sort !== 'default' ? sort : undefined,
+        minPrice: min ? Number(min) : undefined,
+        maxPrice: max ? Number(max) : undefined,
         limit: 48
       });
 
@@ -57,8 +69,10 @@ export const ShopPage: React.FC<ShopPageProps> = ({ navigate, initialCategory, i
     }
   };
 
+  const fetchProducts = () => fetchProductsWith();
+
   useEffect(() => {
-    fetchProducts();
+    fetchProductsWith({ category: selectedCategory, sort: sortOption });
   }, [selectedCategory, sortOption]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -72,6 +86,13 @@ export const ShopPage: React.FC<ShopPageProps> = ({ navigate, initialCategory, i
     setSortOption('default');
     setMinPrice('');
     setMaxPrice('');
+    fetchProductsWith({
+      category: 'all',
+      search: '',
+      sort: 'default',
+      min: '',
+      max: ''
+    });
   };
 
   return (
