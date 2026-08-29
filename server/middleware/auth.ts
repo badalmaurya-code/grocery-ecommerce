@@ -7,10 +7,19 @@ export interface AuthRequest extends Request {
   user?: IUser;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'maurya_grocery_super_secret_jwt_key_2026';
+export const getJwtSecret = (): string => {
+  return (
+    process.env.JWT_SECRET ||
+    process.env.JWT_SECURE ||
+    process.env.jwt_secret ||
+    process.env.jwt_secure ||
+    process.env.SECRET_KEY ||
+    'maurya_grocery_super_secret_jwt_key_2026'
+  );
+};
 
 export const generateToken = (userId: string, role: string): string => {
-  return jwt.sign({ id: userId, role }, JWT_SECRET, { expiresIn: '30d' });
+  return jwt.sign({ id: String(userId), role }, getJwtSecret(), { expiresIn: '30d' });
 };
 
 export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -25,7 +34,7 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
+    const decoded = jwt.verify(token, getJwtSecret()) as { id: string; role: string };
     const user = await DataService.findUserById(decoded.id);
 
     if (!user) {
@@ -58,7 +67,7 @@ export const optionalAuth = async (req: AuthRequest, res: Response, next: NextFu
 
   if (token) {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
+      const decoded = jwt.verify(token, getJwtSecret()) as { id: string; role: string };
       const user = await DataService.findUserById(decoded.id);
       if (user && user.isActive) {
         req.user = user;

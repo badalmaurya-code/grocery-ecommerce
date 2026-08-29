@@ -8,12 +8,18 @@ import { SettingsModel } from '../models/Settings';
 import bcrypt from 'bcryptjs';
 
 export async function connectDB() {
-  const uri = process.env.MONGODB_URI;
+  const uri =
+    process.env.MONGODB_URI ||
+    process.env.mongodb_uri ||
+    process.env.MONGO_URI ||
+    process.env.mongo_uri ||
+    process.env.DATABASE_URL ||
+    process.env.database_url;
 
   // Initialize in-memory seed store immediately for fast fallback
   await memoryStore.init();
 
-  if (!uri || uri.includes('YOUR_MONGODB_URI') || uri === '') {
+  if (!uri || uri.includes('YOUR_MONGODB_URI') || uri.trim() === '') {
     console.log('ℹ️ [Maurya Grocery] No remote MONGODB_URI configured. Running in high-performance reactive in-memory database mode.');
     return;
   }

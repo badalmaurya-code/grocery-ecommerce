@@ -1,7 +1,7 @@
+import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import path from 'path';
-import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
 
 import { connectDB } from './server/config/db';
@@ -12,8 +12,6 @@ import orderRoutes from './server/routes/orderRoutes';
 import paymentRoutes from './server/routes/paymentRoutes';
 import settingsRoutes from './server/routes/settingsRoutes';
 import adminRoutes from './server/routes/adminRoutes';
-
-dotenv.config();
 
 const PORT = 3000;
 

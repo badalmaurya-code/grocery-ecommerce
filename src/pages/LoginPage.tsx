@@ -104,6 +104,33 @@ export const LoginPage: React.FC<LoginPageProps> = ({ navigate, redirect }) => {
             Register Here (नया खाता बनाएं)
           </button>
         </div>
+
+        {/* Demo Credentials Quick Fill */}
+        <div className="pt-2 border-t border-dashed border-stone-200">
+          <p className="text-[11px] font-semibold text-stone-500 mb-2 text-center">Quick Demo Login / त्वरित टेस्ट लॉगिन:</p>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('admin@mauryagrocery.com');
+                setPassword('admin123');
+              }}
+              className="py-1.5 px-2 bg-stone-100 hover:bg-stone-200 text-stone-800 text-[11px] font-medium rounded-lg text-center transition-colors cursor-pointer"
+            >
+              👑 Admin (admin123)
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('customer@mauryagrocery.com');
+                setPassword('user123');
+              }}
+              className="py-1.5 px-2 bg-stone-100 hover:bg-stone-200 text-stone-800 text-[11px] font-medium rounded-lg text-center transition-colors cursor-pointer"
+            >
+              🛒 User (user123)
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

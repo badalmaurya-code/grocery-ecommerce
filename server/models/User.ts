@@ -51,18 +51,6 @@ const UserSchema = new Schema<IUserDoc>(
   { timestamps: true }
 );
 
-UserSchema.pre('save', async function () {
-  if (!this.isModified('password') || !this.password) {
-    return;
-  }
-  // Prevent double-hashing if password is already a valid bcrypt hash
-  if (/^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(this.password)) {
-    return;
-  }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
-
 UserSchema.methods.matchPassword = async function (enteredPassword: string): Promise<boolean> {
   if (!this.password) return false;
   return await bcrypt.compare(enteredPassword, this.password);

@@ -3,9 +3,33 @@ import crypto from 'crypto';
 import { DataService } from '../services/dataService';
 import { AuthRequest } from '../middleware/auth';
 
+const getRazorpayKeyId = (): string => {
+  return (
+    process.env.RAZORPAY_KEY_ID ||
+    process.env.razorpay_key_id ||
+    process.env.ROZERPAY_KEY_ID ||
+    process.env.rozerpay_key_id ||
+    process.env.RAZORPAY_ID ||
+    process.env.razorpay_id ||
+    ''
+  );
+};
+
+const getRazorpayKeySecret = (): string => {
+  return (
+    process.env.RAZORPAY_KEY_SECRET ||
+    process.env.razorpay_key_secret ||
+    process.env.ROZERPAY_KEY_SECRET ||
+    process.env.rozerpay_key_secret ||
+    process.env.RAZORPAY_SECRET ||
+    process.env.razorpay_secret ||
+    ''
+  );
+};
+
 export const getPaymentConfig = async (req: Request, res: Response) => {
   try {
-    const keyId = process.env.RAZORPAY_KEY_ID || '';
+    const keyId = getRazorpayKeyId();
     const settings = await DataService.getSettings();
 
     res.json({
@@ -35,8 +59,8 @@ export const createRazorpayOrder = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ success: false, message: 'This order is already paid' });
     }
 
-    const keyId = process.env.RAZORPAY_KEY_ID;
-    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    const keyId = getRazorpayKeyId();
+    const keySecret = getRazorpayKeySecret();
 
     const amountInPaise = Math.round(order.totalAmount * 100);
 
