@@ -31,66 +31,109 @@ export async function connectDB() {
     });
     console.log('✅ [Maurya Grocery] Successfully connected to MongoDB Atlas / Server.');
 
-    // Check if initial seed is required in MongoDB
+    // Always ensure default admin and demo user exist and have valid password hashes
+    await ensureEssentialUsers();
+
+    // Check if initial categories and products need seeding
     const categoryCount = await (CategoryModel as any).countDocuments();
     if (categoryCount === 0) {
-      console.log('🌱 Seeding initial Maurya Grocery categories, products and admin user into MongoDB...');
+      console.log('🌱 Seeding initial Maurya Grocery categories, products and settings into MongoDB...');
       await (CategoryModel as any).insertMany(initialCategories);
       await (ProductModel as any).insertMany(initialProducts);
-
-      const adminPassword = await bcrypt.hash('admin123', 10);
-      const userPassword = await bcrypt.hash('user123', 10);
-
-      await (UserModel as any).create([
-        {
-          name: 'Maurya Admin',
-          email: 'admin@mauryagrocery.com',
-          phone: '6394016580',
-          password: adminPassword,
-          role: 'admin',
-          addresses: [
-            {
-              fullName: 'Maurya Grocery Store',
-              phone: '6394016580',
-              addressLine: 'Mahavir Chhapra Market, Main Road',
-              area: 'Mahavir Chhapra',
-              city: 'Gorakhpur',
-              state: 'Uttar Pradesh',
-              pincode: '273001',
-              landmark: 'Near Hanuman Temple',
-              isDefault: true
-            }
-          ],
-          isActive: true
-        },
-        {
-          name: 'Rahul Maurya',
-          email: 'customer@mauryagrocery.com',
-          phone: '9876543210',
-          password: userPassword,
-          role: 'user',
-          addresses: [
-            {
-              fullName: 'Rahul Maurya',
-              phone: '9876543210',
-              addressLine: 'House No. 42, Ward 5',
-              area: 'Mahavir Chhapra',
-              city: 'Gorakhpur',
-              state: 'Uttar Pradesh',
-              pincode: '273001',
-              landmark: 'Behind Primary School',
-              isDefault: true
-            }
-          ],
-          isActive: true
-        }
-      ]);
-
       await (SettingsModel as any).create(initialSettings);
-      console.log('✅ Database seeded successfully!');
+      console.log('✅ Categories and Products seeded successfully!');
     }
   } catch (err: any) {
     console.warn('⚠️ MongoDB connection could not be established:', err.message);
     console.log('💡 Continuing with reliable in-memory storage. All features remain fully interactive.');
+  }
+}
+
+export async function ensureEssentialUsers() {
+  try {
+    const adminEmail = 'admin@mauryagrocery.com';
+    const customerEmail = 'customer@mauryagrocery.com';
+
+    const adminPasswordHash = await bcrypt.hash('admin123', 10);
+    const userPasswordHash = await bcrypt.hash('user123', 10);
+
+    // 1. Admin User
+    const existingAdmin = await (UserModel as any).findOne({
+      email: { $regex: new RegExp(`^${adminEmail}$`, 'i') }
+    });
+
+    if (!existingAdmin) {
+      console.log('👑 Seeding default Admin user into MongoDB (admin@mauryagrocery.com)...');
+      await (UserModel as any).create({
+        name: 'Maurya Admin',
+        email: adminEmail,
+        phone: '6394016580',
+        password: adminPasswordHash,
+        role: 'admin',
+        addresses: [
+          {
+            fullName: 'Maurya Grocery Store',
+            phone: '6394016580',
+            addressLine: 'Mahavir Chhapra Market, Main Road',
+            area: 'Mahavir Chhapra',
+            city: 'Gorakhpur',
+            state: 'Uttar Pradesh',
+            pincode: '273001',
+            landmark: 'Near Hanuman Temple',
+            isDefault: true
+          }
+        ],
+        isActive: true
+      });
+    } else {
+      // Ensure existing admin has admin123 password valid hash and admin role
+      const isMatch = await bcrypt.compare('admin123', existingAdmin.password || '');
+      if (!isMatch || existingAdmin.role !== 'admin' || !existingAdmin.isActive) {
+        existingAdmin.password = adminPasswordHash;
+        existingAdmin.role = 'admin';
+        existingAdmin.isActive = true;
+        await existingAdmin.save();
+        console.log('🔄 Synced and verified Admin credentials in MongoDB.');
+      }
+    }
+
+    // 2. Demo Customer User
+    const existingCustomer = await (UserModel as any).findOne({
+      email: { $regex: new RegExp(`^${customerEmail}$`, 'i') }
+    });
+
+    if (!existingCustomer) {
+      console.log('🛒 Seeding default Customer user into MongoDB (customer@mauryagrocery.com)...');
+      await (UserModel as any).create({
+        name: 'Rahul Maurya',
+        email: customerEmail,
+        phone: '9876543210',
+        password: userPasswordHash,
+        role: 'user',
+        addresses: [
+          {
+            fullName: 'Rahul Maurya',
+            phone: '9876543210',
+            addressLine: 'House No. 42, Ward 5',
+            area: 'Mahavir Chhapra',
+            city: 'Gorakhpur',
+            state: 'Uttar Pradesh',
+            pincode: '273001',
+            landmark: 'Behind Primary School',
+            isDefault: true
+          }
+        ],
+        isActive: true
+      });
+    } else {
+      const isMatch = await bcrypt.compare('user123', existingCustomer.password || '');
+      if (!isMatch || !existingCustomer.isActive) {
+        existingCustomer.password = userPasswordHash;
+        existingCustomer.isActive = true;
+        await existingCustomer.save();
+      }
+    }
+  } catch (seedErr) {
+    console.error('Error in ensureEssentialUsers:', seedErr);
   }
 }

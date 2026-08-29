@@ -177,9 +177,15 @@ export const DataService = {
   async findUserByEmail(email: string): Promise<IUser | null> {
     if (!email) return null;
     const normalizedEmail = String(email).trim().toLowerCase();
+    const escaped = normalizedEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     if (this.isMongooseConnected()) {
       try {
-        const u = await (UserModel as any).findOne({ email: normalizedEmail });
+        const u = await (UserModel as any).findOne({
+          $or: [
+            { email: normalizedEmail },
+            { email: { $regex: new RegExp(`^${escaped}$`, 'i') } }
+          ]
+        });
         if (u) {
           const obj = u.toObject() as IUser;
           obj._id = String(obj._id);
