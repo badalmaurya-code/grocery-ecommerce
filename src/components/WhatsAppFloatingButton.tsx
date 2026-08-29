@@ -40,7 +40,7 @@ export const WhatsAppFloatingButton: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-20 right-3 sm:bottom-6 sm:right-6 z-40">
+    <div className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-40">
       {/* WhatsApp Quick Popup */}
       {isOpen && (
         <div className="mb-3 w-[calc(100vw-1.5rem)] max-w-sm sm:w-96 bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">

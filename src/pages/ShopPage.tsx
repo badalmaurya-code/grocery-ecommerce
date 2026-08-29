@@ -3,8 +3,6 @@ import { Filter, SlidersHorizontal, Search, RefreshCw, X, Check, ChevronDown } f
 import { ICategory, IProduct } from '../types';
 import { categoryAPI, productAPI } from '../services/api';
 import { ProductCard } from '../components/ProductCard';
-import { ProductGridSkeleton } from '../components/skeletons/ProductCardSkeleton';
-import { CategorySidebarSkeleton } from '../components/skeletons/CategorySkeleton';
 
 interface ShopPageProps {
   navigate: (view: string, params?: any) => void;
@@ -201,24 +199,20 @@ export const ShopPage: React.FC<ShopPageProps> = ({ navigate, initialCategory, i
                 <span>All Categories</span>
                 {selectedCategory === 'all' && <Check className="w-3.5 h-3.5 text-emerald-700" />}
               </button>
-              {categories.length === 0 ? (
-                <CategorySidebarSkeleton count={6} />
-              ) : (
-                categories.map(c => (
-                  <button
-                    key={c.slug}
-                    onClick={() => setSelectedCategory(c.slug)}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${
-                      selectedCategory === c.slug
-                        ? 'bg-emerald-50 text-emerald-900 font-bold'
-                        : 'text-stone-600 hover:bg-stone-50'
-                    }`}
-                  >
-                    <span className="truncate">{c.name}</span>
-                    {selectedCategory === c.slug && <Check className="w-3.5 h-3.5 text-emerald-700" />}
-                  </button>
-                ))
-              )}
+              {categories.map(c => (
+                <button
+                  key={c.slug}
+                  onClick={() => setSelectedCategory(c.slug)}
+                  className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${
+                    selectedCategory === c.slug
+                      ? 'bg-emerald-50 text-emerald-900 font-bold'
+                      : 'text-stone-600 hover:bg-stone-50'
+                  }`}
+                >
+                  <span className="truncate">{c.name}</span>
+                  {selectedCategory === c.slug && <Check className="w-3.5 h-3.5 text-emerald-700" />}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -253,7 +247,16 @@ export const ShopPage: React.FC<ShopPageProps> = ({ navigate, initialCategory, i
         {/* Product Cards Grid */}
         <div className="lg:col-span-3">
           {loading ? (
-            <ProductGridSkeleton count={9} columnsClass="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl p-4 border border-stone-200 animate-pulse space-y-3">
+                  <div className="aspect-square bg-stone-200 rounded-xl" />
+                  <div className="h-4 bg-stone-200 rounded-md w-3/4" />
+                  <div className="h-3 bg-stone-200 rounded-md w-1/2" />
+                  <div className="h-8 bg-stone-200 rounded-xl" />
+                </div>
+              ))}
+            </div>
           ) : products.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
               {products.map(product => (

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight, Boxes } from 'lucide-react';
 import { ICategory } from '../types';
 import { categoryAPI } from '../services/api';
-import { CategoryGridSkeleton } from '../components/skeletons/CategorySkeleton';
 
 interface CategoriesPageProps {
   navigate: (view: string, params?: any) => void;
@@ -34,7 +33,14 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({ navigate }) => {
       </div>
 
       {loading ? (
-        <CategoryGridSkeleton count={6} variant="full" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="bg-white rounded-3xl p-6 border border-stone-200 animate-pulse space-y-4">
+              <div className="aspect-square bg-stone-200 rounded-2xl" />
+              <div className="h-4 bg-stone-200 rounded w-3/4" />
+            </div>
+          ))}
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {categories.map(cat => (

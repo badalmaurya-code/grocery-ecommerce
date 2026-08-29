@@ -16,7 +16,6 @@ import { productAPI } from '../services/api';
 import { useCart } from '../context/CartContext';
 import { useSettings } from '../context/SettingsContext';
 import { ProductCard } from '../components/ProductCard';
-import { ProductDetailSkeleton } from '../components/skeletons/ProductDetailSkeleton';
 
 interface ProductDetailPageProps {
   slug: string;
@@ -54,7 +53,15 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ slug, navi
   }, [slug]);
 
   if (loading) {
-    return <ProductDetailSkeleton />;
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+        <div className="animate-pulse space-y-4 max-w-lg mx-auto">
+          <div className="h-64 bg-stone-200 rounded-3xl" />
+          <div className="h-6 bg-stone-200 rounded-md w-3/4 mx-auto" />
+          <div className="h-4 bg-stone-200 rounded-md w-1/2 mx-auto" />
+        </div>
+      </div>
+    );
   }
 
   if (!product) {

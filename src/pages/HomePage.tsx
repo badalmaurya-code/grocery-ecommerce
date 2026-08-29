@@ -22,8 +22,6 @@ import { categoryAPI, productAPI } from '../services/api';
 import { ProductCard } from '../components/ProductCard';
 import { DeliveryBanner } from '../components/DeliveryBanner';
 import { useSettings } from '../context/SettingsContext';
-import { ProductGridSkeleton } from '../components/skeletons/ProductCardSkeleton';
-import { CategoryGridSkeleton } from '../components/skeletons/CategorySkeleton';
 
 interface HomePageProps {
   navigate: (view: string, params?: any) => void;
@@ -190,36 +188,32 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
           </button>
         </div>
 
-        {loading ? (
-          <CategoryGridSkeleton count={6} variant="compact" />
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-            {categories.slice(0, 12).map(cat => (
-              <div
-                key={cat._id || cat.slug}
-                onClick={() => navigate('shop', { category: cat.slug })}
-                className="group relative bg-white rounded-2xl border border-stone-200/90 hover:border-emerald-500/60 p-3 flex flex-col items-center text-center cursor-pointer shadow-2xs hover:shadow-md transition-all duration-200"
-              >
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-emerald-50/50 mb-2.5 group-hover:scale-105 transition-transform">
-                  <img
-                    src={cat.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=300&q=80'}
-                    alt={cat.name}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 className="text-xs sm:text-sm font-bold text-stone-900 line-clamp-1 group-hover:text-emerald-700">
-                  {cat.name}
-                </h3>
-                {cat.hindiName && (
-                  <p className="text-[11px] text-emerald-800 font-hindi font-medium line-clamp-1 mt-0.5">
-                    {cat.hindiName}
-                  </p>
-                )}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+          {categories.slice(0, 12).map(cat => (
+            <div
+              key={cat._id || cat.slug}
+              onClick={() => navigate('shop', { category: cat.slug })}
+              className="group relative bg-white rounded-2xl border border-stone-200/90 hover:border-emerald-500/60 p-3 flex flex-col items-center text-center cursor-pointer shadow-2xs hover:shadow-md transition-all duration-200"
+            >
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-emerald-50/50 mb-2.5 group-hover:scale-105 transition-transform">
+                <img
+                  src={cat.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=300&q=80'}
+                  alt={cat.name}
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover"
+                />
               </div>
-            ))}
-          </div>
-        )}
+              <h3 className="text-xs sm:text-sm font-bold text-stone-900 line-clamp-1 group-hover:text-emerald-700">
+                {cat.name}
+              </h3>
+              {cat.hindiName && (
+                <p className="text-[11px] text-emerald-800 font-hindi font-medium line-clamp-1 mt-0.5">
+                  {cat.hindiName}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* 3. HOME DELIVERY FEATURE BANNER */}
@@ -247,19 +241,15 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
           </button>
         </div>
 
-        {loading ? (
-          <ProductGridSkeleton count={8} columnsClass="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6" />
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-            {featuredProducts.map(product => (
-              <ProductCard
-                key={product._id}
-                product={product}
-                onSelect={p => navigate('product-detail', { slug: p.slug })}
-              />
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+          {featuredProducts.map(product => (
+            <ProductCard
+              key={product._id}
+              product={product}
+              onSelect={p => navigate('product-detail', { slug: p.slug })}
+            />
+          ))}
+        </div>
       </section>
 
       {/* 5. FRESH VEGETABLES SECTION */}
@@ -285,19 +275,15 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
             </button>
           </div>
 
-          {loading ? (
-            <ProductGridSkeleton count={4} columnsClass="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6" />
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-              {freshVeggieProducts.map(product => (
-                <ProductCard
-                  key={product._id}
-                  product={product}
-                  onSelect={p => navigate('product-detail', { slug: p.slug })}
-                />
-              ))}
-            </div>
-          )}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+            {freshVeggieProducts.map(product => (
+              <ProductCard
+                key={product._id}
+                product={product}
+                onSelect={p => navigate('product-detail', { slug: p.slug })}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
@@ -321,19 +307,15 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
           </button>
         </div>
 
-        {loading ? (
-          <ProductGridSkeleton count={4} columnsClass="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6" />
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-            {staplesProducts.map(product => (
-              <ProductCard
-                key={product._id}
-                product={product}
-                onSelect={p => navigate('product-detail', { slug: p.slug })}
-              />
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+          {staplesProducts.map(product => (
+            <ProductCard
+              key={product._id}
+              product={product}
+              onSelect={p => navigate('product-detail', { slug: p.slug })}
+            />
+          ))}
+        </div>
       </section>
     </div>
   );
