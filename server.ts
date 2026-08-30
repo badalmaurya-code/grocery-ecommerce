@@ -15,7 +15,7 @@ import adminRoutes from './server/routes/adminRoutes';
 
 const PORT = 3000;
 
-async function startServer() {
+export async function createApp() {
   const app = express();
 
   // Standard middleware
@@ -23,6 +23,7 @@ async function startServer() {
     origin: true,
     credentials: true
   }));
+
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -51,32 +52,48 @@ async function startServer() {
   // Global API Error Handler
   app.use('/api/*', (err: any, req: Request, res: Response, next: NextFunction) => {
     console.error('API Error:', err);
+
     res.status(err.status || 500).json({
       success: false,
       message: err.message || 'Internal Server Error'
     });
   });
 
-  // Vite Middleware for development / Static files for production
-  if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa'
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req: Request, res: Response) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
+  // Frontend is handled by Vercel in production.
+  // Keep Vite/static serving only for local development.
+  if (!process.env.VERCEL) {
+    if (process.env.NODE_ENV !== 'production') {
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: 'spa'
+      });
+
+      app.use(vite.middlewares);
+    } else {
+      const distPath = path.join(process.cwd(), 'dist');
+
+      app.use(express.static(distPath));
+
+      app.get('*', (req: Request, res: Response) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+      });
+    }
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🛒 [Maurya Grocery Server] Running on http://localhost:${PORT}`);
-  });
+  return app;
 }
 
-startServer().catch(err => {
-  console.error('Failed to start server:', err);
-});
+// Local development server
+if (!process.env.VERCEL) {
+  createApp()
+    .then((app) => {
+      app.listen(PORT, '0.0.0.0', () => {
+        console.log(
+          `🛒 [Maurya Grocery Server] Running on http://localhost:${PORT}`
+        );
+      });
+    })
+    .catch((err) => {
+      console.error('Failed to start server:', err);
+    });
+}
