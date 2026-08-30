@@ -1,4 +1,5 @@
-import { createApp } from '../app.server';
+// @ts-ignore - importing the pre-built bundle (see package.json "build" script)
+import { createApp } from '../dist/server.cjs';
 
 let appPromise: ReturnType<typeof createApp> | null = null;
 
