@@ -68,7 +68,7 @@ export const createRazorpayOrder = async (req: AuthRequest, res: Response) => {
     if (keyId && keySecret && !keyId.includes('YOUR_RAZORPAY')) {
       try {
         // Safe dynamic require / import for razorpay
-        const rzpModule = await (Function('return import("razorpay")')()) as any;
+        const rzpModule: any = await import('razorpay');
         const Razorpay = rzpModule.default || rzpModule;
         const instance = new Razorpay({
           key_id: keyId,
