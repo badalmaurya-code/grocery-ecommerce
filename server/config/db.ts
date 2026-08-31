@@ -27,7 +27,7 @@ export async function connectDB() {
   try {
     console.log('🔄 Connecting to MongoDB...');
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 5000
+      serverSelectionTimeoutMS: 15000
     });
     console.log('✅ [Maurya Grocery] Successfully connected to MongoDB Atlas / Server.');
 

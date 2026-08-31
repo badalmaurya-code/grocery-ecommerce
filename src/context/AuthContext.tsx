@@ -45,12 +45,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(res.data.user);
             localStorage.setItem('maurya_user', JSON.stringify(res.data.user));
           }
-        } catch (err) {
-          localStorage.removeItem('maurya_token');
-          localStorage.removeItem('maurya_user');
-          setToken(null);
-          setUser(null);
-        }
+        } catch (err: any) {
+          const status = err?.response?.status;
+          if (status === 401) {
+            localStorage.removeItem('maurya_token');
+            localStorage.removeItem('maurya_user');
+            setToken(null);
+            setUser(null);
+  }
+  // else: keep existing token/user as-is, user stays logged in, try again next time
+}
       }
       setLoading(false);
     };
